@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>docunova — Sagen Sie uns, was Ihr Büro aufhält.</title>
+<meta name="description" content="docunova hält seit 1986 Büros in der Region Frankfurt am Laufen — Druck, Dokumente, Kommunikation. Beschreiben Sie Ihr Thema und erhalten Sie sofort eine erste Einschätzung." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #F5F5F3;
+    --sheet: #FFFFFF;
+    --ink: #111112;
+    --ink-soft: #5c5c58;
+    --ink-faint: #8a8a85;
+    --red: #E30613;
+    --red-deep: #B00511;
+    --line: #E5E5E1;
+    --line-soft: #EFEFEC;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --sans: "IBM Plex Sans", -apple-system, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--red); outline-offset: 2px; border-radius: 2px; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(245,245,243,0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s ease;
+  }
+  .topbar.is-scrolled, body.chatting .topbar { border-bottom-color: var(--line); }
+  .topbar-in {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px;
+    max-width: 1080px; width: 100%; margin: 0 auto;
+  }
+  .wordmark { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .wordmark svg { width: 26px; height: 26px; flex: 0 0 auto; }
+  .wordmark .wm-text { display: flex; flex-direction: column; line-height: 1; }
+  .wordmark .wm-name { font-weight: 700; font-size: 20px; letter-spacing: -0.03em; }
+  .wordmark .wm-name sup { font-size: 8px; font-weight: 500; color: var(--ink-faint); }
+  .wordmark .wm-sub { font-family: var(--mono); font-size: 7.5px; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-faint); margin-top: 3px; }
+  .topbar-right { display: flex; align-items: center; gap: 22px; }
+  .phone {
+    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    text-decoration: none; color: var(--ink);
+    border-bottom: 1px solid var(--line); padding-bottom: 2px;
+  }
+  .phone:hover { border-color: var(--red); }
+  .alt-view { font-size: 12.5px; color: var(--ink-faint); text-decoration: none; }
+  .alt-view:hover { color: var(--ink); }
+
+  main { flex: 1; display: flex; flex-direction: column; width: 100%; }
+
+  .stage {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px 24px 48px; text-align: center;
+    max-width: 860px; width: 100%; margin: 0 auto;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--red);
+    margin-bottom: 26px;
+  }
+  h1 {
+    font-size: clamp(38px, 6.4vw, 64px);
+    font-weight: 700; letter-spacing: -0.035em; line-height: 1.04;
+    max-width: 15ch; margin: 0 auto 22px;
+  }
+  .lede {
+    font-size: 17px; line-height: 1.65; color: var(--ink-soft);
+    max-width: 56ch; margin: 0 auto 42px;
+  }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  .ask {
+    width: 100%; max-width: 620px;
+    display: flex; align-items: center; gap: 0;
+    background: var(--sheet);
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    box-shadow: 0 1px 0 var(--ink), 4px 4px 0 rgba(17,17,18,0.08);
+    transition: box-shadow .15s ease;
+  }
+  .ask:focus-within { box-shadow: 0 1px 0 var(--ink), 4px 4px 0 rgba(227,6,19,0.22); }
+  .ask input {
+    flex: 1; border: none; background: transparent; outline: none;
+    font: 16px/1.4 var(--sans); color: var(--ink);
+    padding: 18px 8px 18px 20px; min-width: 0;
+  }
+  .ask input::placeholder { color: var(--ink-faint); }
+  .ask button {
+    flex: 0 0 auto; border: none; background: var(--red); color: #fff;
+    width: 46px; height: 46px; border-radius: 3px; margin: 6px;
+    display: grid; place-items: center;
+    transition: background .15s ease;
+  }
+  .ask button:hover { background: var(--red-deep); }
+  .ask button:disabled { background: var(--ink-faint); cursor: default; }
+  .ask svg { width: 20px; height: 20px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-top: 26px; max-width: 640px; }
+  .chip {
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    background: transparent; color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 9px 15px;
+    transition: all .15s ease;
+  }
+  .chip:hover { border-color: var(--ink); color: var(--ink); background: var(--sheet); }
+
+  .stage-foot {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    letter-spacing: 0.06em; margin-top: 56px;
+  }
+  .stage-foot b { color: var(--ink-soft); font-weight: 500; }
+
+  .protocol { display: none; flex: 1; min-height: 0; flex-direction: column; width: 100%; max-width: 820px; margin: 0 auto; padding: 0 20px 20px; }
+  body.chatting { height: 100dvh; overflow: hidden; }
+  body.chatting main { min-height: 0; }
+  body.chatting .stage { display: none; }
+  body.chatting .protocol { display: flex; }
+  body.chatting footer { display: none; }
+
+  .sheet {
+    flex: 1; min-height: 0; background: var(--sheet);
+    border: 1px solid var(--line);
+    border-radius: 6px 6px 0 0;
+    box-shadow: 0 2px 24px rgba(17,17,18,0.06);
+    position: relative;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .sheet::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 64px;
+    width: 1px; background: rgba(227,6,19,0.35);
+    pointer-events: none;
+  }
+  .sheet-head {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 18px 28px 16px 84px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .sheet-head .t { font-family: var(--mono); font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+  .sheet-head .d { font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); margin-left: auto; }
+
+  .log { flex: 1; overflow-y: auto; padding: 26px 28px 18px 0; scroll-padding-bottom: 24px; }
+  .entry { display: flex; gap: 0; margin-bottom: 26px; }
+  .entry .ts {
+    flex: 0 0 64px; text-align: center;
+    font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint);
+    padding-top: 4px;
+  }
+  .entry .msg { flex: 1; min-width: 0; padding-left: 20px; }
+  .entry .who {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    margin-bottom: 7px; color: var(--ink-faint);
+  }
+  .entry.bot .who { color: var(--red); }
+  .entry .body { font-size: 15.5px; line-height: 1.62; max-width: 62ch; white-space: pre-wrap; }
+  .entry.user .body { color: var(--ink-soft); }
+  .entry .src { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 8px; }
+
+  .typing { display: inline-flex; gap: 5px; padding: 6px 0; }
+  .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); animation: blink 1.2s infinite; }
+  .typing i:nth-child(2) { animation-delay: .2s; }
+  .typing i:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,60%,100% { opacity: .25; } 30% { opacity: 1; } }
+
+  .card {
+    margin-top: 16px; max-width: 480px;
+    border: 1.5px solid var(--ink); border-radius: 5px;
+    background: var(--sheet);
+    box-shadow: 4px 4px 0 rgba(17,17,18,0.07);
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 18px;
+    background: var(--ink); color: #fff;
+  }
+  .card-head .ct { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; }
+  .card-head .cb { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,.55); }
+  .card-body { padding: 18px; }
+
+  .slider-row { margin-bottom: 16px; }
+  .slider-row label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+  .slider-row label output { font-family: var(--mono); font-weight: 600; color: var(--red); }
+  input[type="range"] { width: 100%; accent-color: var(--red); }
+  .calc-result {
+    display: flex; align-items: baseline; gap: 10px;
+    border-top: 1px dashed var(--line); margin-top: 4px; padding-top: 14px;
+  }
+  .calc-result .num { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; }
+  .calc-result .lbl { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); line-height: 1.5; }
+  .calc-note { font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); margin-top: 10px; line-height: 1.6; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: none; border-radius: 3px;
+    font-size: 14px; font-weight: 600;
+    padding: 12px 18px;
+    transition: background .15s ease;
+  }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-red:hover { background: var(--red-deep); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .btn-ghost:hover { border-color: var(--ink); }
+  .card-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+  .case-fact { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; font-size: 14px; }
+  .case-fact b { font-family: var(--mono); font-size: 13px; color: var(--red); white-space: nowrap; }
+
+  .person { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+  .person .pic {
+    width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
+    background: var(--ink); color: #fff;
+    display: grid; place-items: center;
+    font-family: var(--mono); font-weight: 600; font-size: 16px;
+    flex: 0 0 auto;
+  }
+  .person .pic img { width: 100%; height: 100%; object-fit: cover; }
+  .person .pn { font-weight: 600; font-size: 15px; }
+  .person .pr { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+
+  .form-grid { display: grid; gap: 10px; }
+  .form-grid input, .form-grid textarea {
+    font: 14px/1.4 var(--sans); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 3px;
+    padding: 11px 13px; width: 100%; background: #fff;
+  }
+  .form-grid input:focus, .form-grid textarea:focus { outline: none; border-color: var(--ink); }
+  .form-grid textarea { resize: vertical; min-height: 64px; }
+  .form-ok {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 14px; line-height: 1.55;
+    background: var(--line-soft); border-radius: 4px; padding: 14px 16px;
+  }
+  .form-ok .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); margin-top: 5px; flex: 0 0 auto; }
+
+  .followups { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+  .dock { border: 1px solid var(--line); border-top: none; background: var(--sheet); border-radius: 0 0 6px 6px; padding: 14px 20px 16px; box-shadow: 0 2px 24px rgba(17,17,18,0.06); }
+  .dock .ask { max-width: none; box-shadow: none; border-width: 1.5px; }
+  .dock-hint { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 9px; text-align: center; letter-spacing: 0.05em; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    background: var(--sheet);
+    margin-top: auto;
+  }
+  .foot-grid {
+    max-width: 1080px; margin: 0 auto;
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px;
+    padding: 36px 28px 30px;
+  }
+  .foot-col .fh {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--red);
+    margin-bottom: 14px;
+  }
+  .foot-col p, .foot-col a { font-size: 13px; line-height: 1.7; color: var(--ink-soft); text-decoration: none; }
+  .foot-col a { display: block; }
+  .foot-col a:hover { color: var(--ink); }
+  .foot-col .fw { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .foot-col .fw svg { width: 18px; height: 18px; }
+  .foot-col .fw b { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .foot-base {
+    border-top: 1px solid var(--line-soft);
+  }
+  .foot-base-in {
+    max-width: 1080px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px 28px;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+  }
+  .foot-base-in nav { display: flex; gap: 18px; }
+  .foot-base-in a { text-decoration: none; color: var(--ink-faint); }
+  .foot-base-in a:hover { color: var(--ink); }
+
+  @media (max-width: 640px) {
+    .topbar-in { padding: 14px 18px; }
+    .alt-view { display: none; }
+    .stage { padding: 12px 18px 32px; }
+    .lede { font-size: 15.5px; }
+    .protocol { padding: 0 10px 12px; }
+    .sheet::before { left: 18px; }
+    .sheet-head { padding: 14px 16px 12px 30px; }
+    .log { padding: 20px 16px 12px 0; }
+    .entry .ts { flex-basis: 18px; font-size: 0; }
+    .entry .msg { padding-left: 14px; }
+    .dock { padding: 10px 12px 12px; }
+    .foot-grid { grid-template-columns: 1fr 1fr; gap: 24px; padding: 28px 18px 22px; }
+    .foot-base-in { flex-direction: column; gap: 8px; padding: 14px 18px; text-align: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <div class="topbar-in">
+    <a class="wordmark" href="index.html" aria-label="docunova — Startseite">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><polygon points="0,0 0,26 26,26" fill="#E30613"/></svg>
+      <span class="wm-text">
+        <span class="wm-name">docunova<sup>®</sup></span>
+        <span class="wm-sub">Document Solutions</span>
+      </span>
+    </a>
+    <div class="topbar-right">
+      <a class="alt-view" href="index2.html">Klassische Ansicht →</a>
+      <a class="phone" href="tel:+4960039414-0">06003 9414-0</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="stage" id="stage">
+    <p class="eyebrow">Bürotechnik · Dokumentenmanagement · Seit 1986</p>
+    <h1>Sagen Sie uns, was Ihr Büro aufhält.</h1>
+    <p class="lede">Seit 1986 halten wir Büros in der Region Frankfurt am Laufen — Druck, Dokumente, Kommunikation. <strong>Beschreiben Sie Ihr Thema und Sie bekommen sofort eine erste Einschätzung: was sich ändern lässt, und was es spart.</strong></p>
+
+    <form class="ask" id="askHero">
+      <input type="text" id="inputHero" placeholder="Zum Beispiel: Unsere Drucker kosten uns zu viel …" autocomplete="off" aria-label="Ihre Frage an docunova" />
+      <button type="submit" aria-label="Frage senden">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+      </button>
+    </form>
+
+    <div class="chips" id="chipsHero" role="list"></div>
+
+    <p class="stage-foot"><b>Direkter Ansprechpartner statt Callcenter.</b> &nbsp;Antwort in Minuten — Rückruf am selben Tag.</p>
+  </section>
+
+  <section class="protocol" id="protocol" aria-label="Gesprächsprotokoll">
+    <div class="sheet">
+      <div class="sheet-head">
+        <span class="t">Gesprächsprotokoll</span>
+        <span class="d" id="protoDate"></span>
+      </div>
+      <div class="log" id="log" aria-live="polite"></div>
+    </div>
+    <div class="dock">
+      <form class="ask" id="askDock">
+        <input type="text" id="inputDock" placeholder="Antwort schreiben …" autocomplete="off" aria-label="Nachricht schreiben" />
+        <button type="submit" aria-label="Nachricht senden">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+        </button>
+      </form>
+      <p class="dock-hint">PROTOTYP — FREIE FRAGEN BEANTWORTET EIN BEISPIEL-KI-BACKEND · VERBINDLICHES KLÄREN WIR PERSÖNLICH: 06003 9414-0</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-grid">
+    <div class="foot-col">
+      <div class="fw">
+        <svg viewBox="0 0 26 26" aria-hidden="true"><polygon points="0,0 0,26 26,26" fill="#E30613"/></svg>
+        <b>docunova</b>
+      </div>
+      <p>Raiffeisenstraße 6<br>61191 Rosbach vor der Höhe<br>Fon 06003 9414-0<br><a href="mailto:info@docunova.de" style="display:inline">info@docunova.de</a></p>
+    </div>
+    <div class="foot-col">
+      <div class="fh">Service</div>
+      <a href="https://docunova.de/zaehlerstand-erfassen/">Zählerstand erfassen</a>
+      <a href="https://docunova.de/stoerungserfassung/">Störung melden</a>
+      <a href="https://www.teamviewer.com/de/download/windows/">TeamViewer Fernwartung</a>
+    </div>
+    <div class="foot-col">
+      <div class="fh">Standorte</div>
+      <p>Rosbach v. d. Höhe<br>Nidda — Wolff Bürotechnik</p>
+      <p style="margin-top:8px">Deutschlandweiter Service,<br>Ansprechpartner vor Ort.</p>
+    </div>
+    <div class="foot-col">
+      <div class="fh">Unternehmen</div>
+      <a href="https://docunova.de/karriere/">Karriere</a>
+      <a href="index2.html">Klassische Ansicht</a>
+      <a href="tel:+4960039414-0">Direkt anrufen</a>
+    </div>
+  </div>
+  <div class="foot-base">
+    <div class="foot-base-in">
+      <span>© 2026 docunova GmbH · Wir für Ihr Büro — seit 1986</span>
+      <nav>
+        <a href="#">Impressum</a>
+        <a href="#">Datenschutz</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const WEBHOOK = 'https://n8n.top-beraternetzwerk.de/webhook/multiagent';
+  const SESSION = 'dn-' + Math.random().toString(36).slice(2, 10);
+
+  const $ = (s) => document.querySelector(s);
+  const log = $('#log');
+  let pending = false;
+
+  $('#protoDate').textContent = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  const topbar = $('#topbar');
+  window.addEventListener('scroll', () => {
+    topbar.classList.toggle('is-scrolled', window.scrollY > 4);
+  }, { passive: true });
+
+  const CHIPS = [
+    'Was kostet unser Druck wirklich?',
+    'Unser Leasingvertrag läuft aus',
+    'Papierakten digitalisieren',
+    'DMS für unsere Praxis',
+    'Störung — wir brauchen einen Techniker',
+  ];
+  const chipsEl = $('#chipsHero');
+  CHIPS.forEach((q) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = q;
+    b.addEventListener('click', () => submit(q));
+    chipsEl.appendChild(b);
+  });
+
+  function ts() {
+    return new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function entry(who, cls) {
+    const e = document.createElement('div');
+    e.className = 'entry ' + cls;
+    e.innerHTML = `<div class="ts">${ts()}</div><div class="msg"><div class="who">${who}</div></div>`;
+    log.appendChild(e);
+    return e.querySelector('.msg');
+  }
+
+  function addUser(text) {
+    const m = entry('Sie', 'user');
+    const b = document.createElement('div');
+    b.className = 'body'; b.textContent = text;
+    m.appendChild(b);
+    scroll();
+  }
+
+  function addBot(text, { src, cards, followups } = {}) {
+    const m = entry('docunova', 'bot');
+    const b = document.createElement('div');
+    b.className = 'body'; b.textContent = text;
+    m.appendChild(b);
+    (cards || []).forEach((make) => m.appendChild(make()));
+    if (followups?.length) {
+      const f = document.createElement('div');
+      f.className = 'followups';
+      followups.forEach((q) => {
+        const c = document.createElement('button');
+        c.type = 'button'; c.className = 'chip'; c.textContent = q;
+        c.addEventListener('click', () => submit(q));
+        f.appendChild(c);
+      });
+      m.appendChild(f);
+    }
+    if (src) {
+      const s = document.createElement('div');
+      s.className = 'src'; s.textContent = src;
+      m.appendChild(s);
+    }
+    scroll();
+    return m;
+  }
+
+  function addTyping() {
+    const m = entry('docunova', 'bot');
+    m.insertAdjacentHTML('beforeend', '<div class="typing" role="status" aria-label="docunova schreibt"><i></i><i></i><i></i></div>');
+    scroll();
+    return m.closest('.entry');
+  }
+
+  function scroll() {
+    requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
+  }
+
+  const eur = (n) => Math.round(n).toLocaleString('de-DE') + ' €';
+
+  function calculatorCard() {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `
+      <div class="card-head"><span class="ct">Druckkosten-Check</span><span class="cb">unverbindliche Schätzung</span></div>
+      <div class="card-body">
+        <div class="slider-row"><label>Mitarbeitende <output>25</output></label><input type="range" min="3" max="250" value="25" data-k="ma" aria-label="Mitarbeitende"></div>
+        <div class="slider-row"><label>Seiten pro Person &amp; Monat <output>60</output></label><input type="range" min="10" max="400" value="60" data-k="pp" aria-label="Seiten pro Person und Monat"></div>
+        <div class="slider-row"><label>Farbanteil <output>30 %</output></label><input type="range" min="0" max="100" value="30" data-k="fa" aria-label="Farbanteil in Prozent"></div>
+        <div class="calc-result"><span class="num" data-out>—</span><span class="lbl">mögliche Ersparnis<br>pro Jahr</span></div>
+        <p class="calc-note" data-detail></p>
+        <div class="card-actions">
+          <button type="button" class="btn btn-red" data-act="analyse">Genaue Analyse anfordern</button>
+        </div>
+      </div>`;
+    const sliders = c.querySelectorAll('input[type=range]');
+    const upd = () => {
+      const v = {};
+      sliders.forEach((s) => {
+        v[s.dataset.k] = +s.value;
+        s.closest('.slider-row').querySelector('output').textContent = s.dataset.k === 'fa' ? s.value + ' %' : s.value;
+      });
+      const pages = v.ma * v.pp * 12;
+      const color = pages * v.fa / 100, bw = pages - color;
+      const now = bw * 0.02 + color * 0.14;
+      const managed = (bw * 0.012 + color * 0.08) * 0.88;
+      c.querySelector('[data-out]').textContent = eur(now - managed);
+      c.querySelector('[data-detail]').textContent =
+        `Heute ungesteuert ca. ${eur(now)} / Jahr · mit Managed Print ca. ${eur(managed)} / Jahr — durch weniger Fehldrucke, passende Systeme und langlebige Technik.`;
+      c.dataset.summary = `Druckkosten-Check: ${v.ma} MA, ${v.pp} Seiten/Monat, ${v.fa}% Farbe → Ersparnis ca. ${eur(now - managed)}/Jahr`;
+    };
+    sliders.forEach((s) => s.addEventListener('input', upd));
+    upd();
+    c.querySelector('[data-act=analyse]').addEventListener('click', () => {
+      addBot('Gern — mit drei Angaben melden wir uns mit einer belastbaren Rechnung zurück. Ihre Schätzwerte nehmen wir mit.', {
+        cards: [() => analyseCard(c.dataset.summary)],
+      });
+    });
+    return c;
+  }
+
+  function analyseCard(prefill) {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `
+      <div class="card-head"><span class="ct">Analyse anfordern</span><span class="cb">Antwort am selben Werktag</span></div>
+      <div class="card-body">
+        <form class="form-grid">
+          <input type="text" name="firma" placeholder="Firma" required aria-label="Firma">
+          <input type="text" name="name" placeholder="Ihr Name" required aria-label="Ihr Name">
+          <input type="text" name="kontakt" placeholder="E-Mail oder Telefonnummer" required aria-label="E-Mail oder Telefonnummer">
+          <textarea name="thema" aria-label="Ihr Thema">${prefill || ''}</textarea>
+          <button type="submit" class="btn btn-red">Absenden</button>
+        </form>
+      </div>`;
+    c.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      c.querySelector('.card-body').innerHTML = `
+        <div class="form-ok"><span class="dot"></span><span><b>Angekommen.</b> Ein fester Ansprechpartner — kein Callcenter — meldet sich am selben Werktag bei Ihnen.<br><span style="font-family:var(--mono);font-size:11px;color:var(--ink-faint)">Prototyp: Es wurde nichts versendet.</span></span></div>`;
+      scroll();
+    });
+    return c;
+  }
+
+  function callbackCard() {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `
+      <div class="card-head"><span class="ct">Rückruf</span><span class="cb">heute noch</span></div>
+      <div class="card-body">
+        <div class="person">
+          <span class="pic"><img src="ansprechpartner.png" alt="" onerror="this.remove()"><span>RM</span></span>
+          <div><div class="pn">Ihr persönlicher Ansprechpartner</div><div class="pr">Beratung &amp; Technik · Rosbach v. d. Höhe</div></div>
+        </div>
+        <form class="form-grid">
+          <input type="text" name="name" placeholder="Ihr Name" required aria-label="Ihr Name">
+          <input type="tel" name="tel" placeholder="Telefonnummer" required aria-label="Telefonnummer">
+          <button type="submit" class="btn btn-red">Rückruf anfordern</button>
+        </form>
+        <div class="card-actions"><a class="btn btn-ghost" href="tel:+4960039414-0">Oder direkt anrufen: 06003 9414-0</a></div>
+      </div>`;
+    c.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      c.querySelector('.card-body').innerHTML = `
+        <div class="form-ok"><span class="dot"></span><span><b>Notiert.</b> Wir rufen Sie heute zurück — versprochen ist versprochen.<br><span style="font-family:var(--mono);font-size:11px;color:var(--ink-faint)">Prototyp: Es wurde nichts versendet.</span></span></div>`;
+      scroll();
+    });
+    return c;
+  }
+
+  function caseCard({ title, facts }) {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `
+      <div class="card-head"><span class="ct">${title}</span><span class="cb">aus der Praxis</span></div>
+      <div class="card-body">
+        ${facts.map(([k, v]) => `<div class="case-fact"><b>${k}</b><span>${v}</span></div>`).join('')}
+        <div class="card-actions"><button type="button" class="btn btn-red" data-act="analyse">Passt zu uns — Analyse anfordern</button></div>
+      </div>`;
+    c.querySelector('[data-act=analyse]').addEventListener('click', () => {
+      addBot('Gern. Drei Angaben genügen:', { cards: [() => analyseCard(title)] });
+    });
+    return c;
+  }
+
+  const INTENTS = [
+    {
+      match: /(kost|preis|teuer|spar|druckkosten|mps|managed print)/i,
+      reply: 'Die ehrliche Antwort: Die meisten Büros kennen ihre Druckkosten nicht — sie stecken in Fehldrucken, falschen Geräten und Toner-Einzelkäufen. Schieben Sie kurz die drei Regler, dann sehen Sie Ihre Größenordnung sofort:',
+      cards: [calculatorCard],
+      followups: ['Unser Leasingvertrag läuft aus', 'Papierakten digitalisieren'],
+    },
+    {
+      match: /(leasing|vertrag|miete|kündigch|kündig|finanzier|laufzeit)/i,
+      reply: 'Guter Zeitpunkt — die wichtigsten Weichen stellt man 6 Monate vor Vertragsende. Wir prüfen kostenfrei: Restlaufzeit und Ausstiegsfenster, ob die Geräte noch zum tatsächlichen Bedarf passen, und was ein Wechsel gegenüber einer Verlängerung spart. Dafür genügt ein kurzes Gespräch:',
+      cards: [callbackCard],
+      followups: ['Was kostet unser Druck wirklich?'],
+    },
+    {
+      match: /(praxis|klinik|arzt|patient|healthcare|kv-|behandl)/i,
+      reply: 'Praxen sind für uns Alltag — dort zählt: keine Wartezeit am Empfang, saubere Anbindung an KV- und Praxissoftware, DSGVO-sichere Ausgabe. Ein Beispiel aus der Region:',
+      cards: [() => caseCard({
+        title: 'Klinik & Praxis',
+        facts: [
+          ['−80 %', 'Fehldrucke am Empfang durch PIN-Ausgabe am Gerät'],
+          ['2 Tage', 'von Bestellung bis laufender KV-/KIS-Anbindung'],
+          ['leise', 'feinstaubarme Systeme, geeignet fürs Behandlungszimmer'],
+        ],
+      })],
+      followups: ['Papierakten digitalisieren', 'Was kostet unser Druck wirklich?'],
+    },
+    {
+      match: /(dms|dokument|archiv|akte|papier|digitalisier|gobd|scan|ablage)/i,
+      reply: 'Papierakten loszuwerden ist kein IT-Großprojekt — wenn man es richtig schneidet. Unser Weg: 1. Ist-Aufnahme, welche Dokumente wo entstehen und wer sie sucht. 2. Scan-Strecke plus GoBD-konformes Archiv, angebunden an Ihre Software. 3. Team-Einweisung vor Ort — danach findet jeder jedes Dokument in Sekunden. Den Aufwand für Ihren Fall schätzen wir Ihnen konkret:',
+      cards: [() => analyseCard('Thema: Papierakten digitalisieren / DMS')],
+      followups: ['DMS für unsere Praxis', 'Was kostet unser Druck wirklich?'],
+    },
+    {
+      match: /(störung|defekt|techniker|kaputt|service|wartung|toner|support|reparatur)/i,
+      reply: 'Das klären wir am schnellsten direkt: Unter 06003 9414-0 erreichen Sie unsere Technik — einen Menschen, kein Callcenter. Unser Fachpersonal repariert und wartet vor Ort, deutschlandweit. Wenn Sie mögen, rufen wir auch sofort zurück:',
+      cards: [callbackCard],
+    },
+    {
+      match: /(termin|rückruf|kontakt|beratung|angebot|anruf|sprechen|mensch)/i,
+      reply: 'Sehr gern — so kommen wir am schnellsten zusammen:',
+      cards: [callbackCard],
+    },
+    {
+      match: /(wer seid|über euch|docunova|erfahrung|standort|team|geschichte)/i,
+      reply: 'docunova, gegründet 1986 in Rosbach vor der Höhe — heute mit zweitem Standort in Nidda. Wir kümmern uns um alles, was ein Büro zum Laufen braucht: Druck- und Multifunktionssysteme, Dokumentenmanagement, Telefonie, Medientechnik. Herstellerunabhängig beraten, mit eigenem Technik-Team und 98,6 % Verfügbarkeit. Das Wichtigste in einem Satz: Bei uns haben Sie einen festen Ansprechpartner — kein Callcenter.',
+      followups: ['Was kostet unser Druck wirklich?', 'Rückruf vereinbaren'],
+    },
+  ];
+
+  async function askBackend(text) {
+    const typing = addTyping();
+    try {
+      const ctrl = new AbortController();
+      const to = setTimeout(() => ctrl.abort(), 45000);
+      const res = await fetch(WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, sessionId: SESSION }),
+        signal: ctrl.signal,
+      });
+      clearTimeout(to);
+      const data = await res.json();
+      const out = Array.isArray(data) ? data[0]?.output : (data.output || data.text);
+      typing.remove();
+      if (out) {
+        addBot(out, {
+          src: 'KI-Assistent · Beispiel-Backend (n8n) — verbindliche Auskünfte gibt Ihr Ansprechpartner',
+          followups: ['Rückruf vereinbaren', 'Was kostet unser Druck wirklich?'],
+        });
+      } else { throw new Error('empty'); }
+    } catch {
+      typing.remove();
+      addBot('Da komme ich gerade nicht weiter — aber ein Mensch schon. Rufen Sie uns an (06003 9414-0) oder lassen Sie sich zurückrufen:', { cards: [callbackCard] });
+    }
+    pending = false;
+  }
+
+  function route(text) {
+    for (const intent of INTENTS) {
+      if (intent.match.test(text)) {
+        const typing = addTyping();
+        setTimeout(() => {
+          typing.remove();
+          addBot(intent.reply, { cards: intent.cards, followups: intent.followups });
+          pending = false;
+        }, 650);
+        return;
+      }
+    }
+    askBackend(text);
+  }
+
+  function submit(text) {
+    const t = String(text || '').trim();
+    if (!t || pending) return;
+    pending = true;
+    if (!document.body.classList.contains('chatting')) {
+      document.body.classList.add('chatting');
+      addBot('Guten Tag — schön, dass Sie da sind. Womit können wir Ihr Büro schneller machen?');
+    }
+    addUser(t);
+    route(t);
+    $('#inputDock').focus();
+  }
+
+  for (const [formId, inputId] of [['#askHero', '#inputHero'], ['#askDock', '#inputDock']]) {
+    $(formId).addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = $(inputId);
+      submit(input.value);
+      input.value = '';
+    });
+  }
+})();
+</script>
+</body>
+</html>
