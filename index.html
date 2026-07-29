@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>docunova — Sagen Sie uns, was Ihr Büro aufhält.</title>
 <meta name="description" content="docunova hält seit 1986 Büros in der Region Frankfurt am Laufen — Druck, Dokumente, Kommunikation. Beschreiben Sie Ihr Thema und erhalten Sie sofort eine erste Einschätzung." />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="fonts-chat.css">
 <script>
 /* Merkt die Herkunft, damit Unterseiten den passenden Rahmen zeigen */
 (function(){
@@ -63,6 +61,33 @@
     background: var(--ink); color: #fff; padding: 12px 20px; font-weight: 700; text-decoration: none;
   }
   .skip-link:focus { left: 12px; top: 12px; }
+
+  .modal { position: fixed; inset: 0; z-index: 99995; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .modal[hidden] { display: none; }
+  .modal-backdrop { position: absolute; inset: 0; background: rgba(17,17,18,0.74); }
+  .modal-box {
+    position: relative; width: min(780px, 100%); height: min(88vh, 940px);
+    background: var(--sheet); border-radius: 6px; overflow: hidden;
+    display: flex; flex-direction: column; box-shadow: 0 30px 90px rgba(0,0,0,0.5);
+  }
+  .modal-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 13px 16px; background: var(--ink); color: #fff; flex: 0 0 auto;
+  }
+  .modal-head .t { font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.14em; text-transform: uppercase; }
+  .modal-head .acts { display: flex; align-items: center; gap: 6px; }
+  .modal-head a.ext {
+    font-family: var(--mono); font-size: 0.6562rem; letter-spacing: 0.06em;
+    color: #9a9a95; text-decoration: none; padding: 8px 10px; border-radius: 4px;
+  }
+  .modal-head a.ext:hover { background: #2c2c2e; color: #fff; }
+  .modal-head button { background: transparent; border: none; color: #fff; font-size: 1.25rem; line-height: 1; width: 36px; height: 36px; border-radius: 4px; }
+  .modal-head button:hover { background: #2c2c2e; }
+  .modal-box iframe { flex: 1; width: 100%; border: none; display: block; background: #fff; }
+  @media (max-width: 640px) {
+    .modal { padding: 0; }
+    .modal-box { width: 100%; height: 100%; border-radius: 0; max-height: none; }
+  }
 
   .a11y-fab { position: fixed; left: 14px; bottom: 14px; z-index: 99991; }
   .a11y-fab > button {
@@ -415,6 +440,20 @@
 <body>
 <a class="skip-link" href="#main">Zum Inhalt springen</a>
 
+<div class="modal" id="modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <span class="t" id="modalTitle">Dialog</span>
+      <span class="acts">
+        <a class="ext" id="modalExt" href="#" target="_blank" rel="noopener">In neuem Tab öffnen ↗</a>
+        <button type="button" data-close aria-label="Dialog schließen">&#10005;</button>
+      </span>
+    </div>
+    <iframe id="modalFrame" title="Dialog-Inhalt" src="about:blank"></iframe>
+  </div>
+</div>
+
 <div class="a11y-fab">
   <button type="button" id="a11yBtn" aria-expanded="false" aria-controls="a11yPanel" aria-label="Barrierefreiheits-Einstellungen öffnen">&#9855;</button>
   <div class="a11y-panel" id="a11yPanel" role="group" aria-label="Barrierefreiheits-Einstellungen">
@@ -517,8 +556,9 @@
     <div class="foot-base-in">
       <span>© 2026 docunova GmbH · Wir für Ihr Büro — seit 1986</span>
       <nav>
-        <a href="impressum.html">Impressum</a>
-        <a href="datenschutz.html">Datenschutz</a>
+        <a href="impressum.html" data-modal="impressum.html?embed=1" data-modal-title="Impressum">Impressum</a>
+        <a href="datenschutz.html" data-modal="datenschutz.html?embed=1" data-modal-title="Datenschutzerklärung">Datenschutz</a>
+      <a href="#" data-consent-open>Cookie-Einstellungen</a>
       </nav>
     </div>
   </div>
@@ -941,6 +981,51 @@
     $('#inputDock').focus();
   }
 
+  /* Impressum und Datenschutz als Overlay — der Besucher bleibt im Chat */
+  (() => {
+    const root = $('#modal');
+    if (!root) return;
+    const frame = $('#modalFrame');
+    const titleEl = $('#modalTitle');
+    const extLink = $('#modalExt');
+    let lastFocus = null;
+
+    const open = (url, title, fallback) => {
+      lastFocus = document.activeElement;
+      titleEl.textContent = title;
+      frame.title = title;
+      frame.src = url;
+      extLink.href = fallback || url;
+      root.hidden = false;
+      document.body.style.overflow = 'hidden';
+      root.querySelector('.modal-head button').focus();
+    };
+    const close = () => {
+      root.hidden = true;
+      frame.src = 'about:blank';
+      document.body.style.overflow = '';
+      if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+    };
+
+    root.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
+    document.addEventListener('keydown', (e) => {
+      if (root.hidden) return;
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key !== 'Tab') return;
+      const items = Array.from(root.querySelectorAll('a[href], button:not([disabled]), iframe'));
+      if (!items.length) return;
+      const first = items[0], last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+    document.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-modal]');
+      if (!trigger) return;
+      e.preventDefault();
+      open(trigger.dataset.modal, trigger.dataset.modalTitle || 'Dialog', trigger.getAttribute('href'));
+    });
+  })();
+
   /* Barrierefreiheits-Toolbar — teilt sich den Speicher mit den übrigen Seiten */
   (() => {
     const KEY = 'dn-a11y';
@@ -999,5 +1084,7 @@
   }
 })();
 </script>
+<script src="consent.js"></script>
+
 </body>
 </html>
