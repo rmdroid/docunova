@@ -8,6 +8,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script>
+/* Merkt die Herkunft, damit Unterseiten den passenden Rahmen zeigen */
+(function(){
+  try{ localStorage.setItem('dn-view','chat'); }catch(e){}
+  try{
+    var s = JSON.parse(localStorage.getItem('dn-a11y') || '{}');
+    var h = document.documentElement;
+    if(s.bigtext) h.classList.add('a11y-bigtext');
+    if(s.contrast) h.classList.add('a11y-contrast');
+    if(s.gray) h.classList.add('a11y-gray');
+    if(s.noanim) h.classList.add('a11y-noanim');
+  }catch(e){}
+})();
+</script>
 <style>
   :root {
     --paper: #F5F5F3;
@@ -24,6 +38,61 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
+
+  /* Barrierefreiheit — gleiche Schalter und gleicher Speicher wie auf den übrigen Seiten */
+  html.a11y-bigtext { font-size: 125%; }
+  html.a11y-contrast {
+    --ink-soft: #2b2b2b;
+    --ink-faint: #4a4a48;
+    --line: #9a9a95;
+    --line-soft: #b5b5b0;
+    --red: #B00511;
+    --paper: #ffffff;
+  }
+  html.a11y-gray body > *:not(.a11y-fab) { filter: grayscale(1); }
+  html.a11y-noanim *, html.a11y-noanim *::before, html.a11y-noanim *::after {
+    animation: none !important; transition: none !important;
+  }
+  html.a11y-noanim { scroll-behavior: auto; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  .skip-link {
+    position: absolute; left: -9999px; top: 0; z-index: 200;
+    background: var(--ink); color: #fff; padding: 12px 20px; font-weight: 700; text-decoration: none;
+  }
+  .skip-link:focus { left: 12px; top: 12px; }
+
+  .a11y-fab { position: fixed; left: 14px; bottom: 14px; z-index: 99991; }
+  .a11y-fab > button {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--ink); color: #fff; border: 2px solid #fff;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+    font-size: 1.5rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+  }
+  .a11y-fab > button:hover { background: #2c2c2e; }
+  .a11y-panel {
+    position: absolute; left: 0; bottom: 62px; width: 250px;
+    background: var(--ink); color: #fff; border-radius: 6px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4); padding: 14px; display: none;
+  }
+  .a11y-panel.open { display: block; }
+  .a11y-panel h2 {
+    font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #9a9a95; margin: 0 0 10px; font-weight: 500;
+  }
+  .a11y-panel button {
+    display: flex; align-items: center; justify-content: space-between; width: 100%;
+    background: #232325; color: #fff; border: 1px solid #35353a; border-radius: 4px;
+    padding: 11px 12px; margin-bottom: 8px;
+    font-size: 0.875rem; font-weight: 600; text-align: left;
+  }
+  .a11y-panel button:hover { background: #2c2c2e; }
+  .a11y-panel button .state { font-family: var(--mono); font-size: 0.6875rem; color: #9a9a95; font-weight: 400; }
+  .a11y-panel button[aria-pressed="true"] { border-color: var(--red); }
+  .a11y-panel button[aria-pressed="true"] .state { color: #ff8f97; font-weight: 600; }
+  @media (max-width: 640px) { .a11y-fab > button { width: 46px; height: 46px; font-size: 1.25rem; } }
   body {
     font-family: var(--sans);
     background: var(--paper);
@@ -54,18 +123,35 @@
   .wordmark { display: flex; align-items: center; gap: 10px; text-decoration: none; }
   .wordmark svg { width: 26px; height: 26px; flex: 0 0 auto; }
   .wordmark .wm-text { display: flex; flex-direction: column; line-height: 1; }
-  .wordmark .wm-name { font-weight: 700; font-size: 20px; letter-spacing: -0.03em; }
-  .wordmark .wm-name sup { font-size: 8px; font-weight: 500; color: var(--ink-faint); }
-  .wordmark .wm-sub { font-family: var(--mono); font-size: 7.5px; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-faint); margin-top: 3px; }
+  .wordmark .wm-name { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.03em; }
+  .wordmark .wm-name sup { font-size: 0.5rem; font-weight: 500; color: var(--ink-faint); }
+  .wordmark .wm-sub { font-family: var(--mono); font-size: 0.4688rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-faint); margin-top: 3px; }
   .topbar-right { display: flex; align-items: center; gap: 22px; }
   .phone {
-    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    font-family: var(--mono); font-size: 0.8125rem; font-weight: 500;
     text-decoration: none; color: var(--ink);
     border-bottom: 1px solid var(--line); padding-bottom: 2px;
   }
   .phone:hover { border-color: var(--red); }
-  .alt-view { font-size: 12.5px; color: var(--ink-faint); text-decoration: none; }
+  .alt-view { font-size: 0.7812rem; color: var(--ink-faint); text-decoration: none; }
   .alt-view:hover { color: var(--ink); }
+  .alt-view-wrap { position: relative; display: inline-block; }
+  .alt-view-preview {
+    position: absolute; top: calc(100% + 12px); right: 0; width: 340px;
+    background: var(--sheet); border: 1.5px solid var(--ink); border-radius: 5px;
+    box-shadow: 5px 6px 0 rgba(17,17,18,0.12); padding: 8px;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .18s ease, transform .18s ease, visibility .18s;
+    pointer-events: none; z-index: 20;
+  }
+  .alt-view-wrap:hover .alt-view-preview,
+  .alt-view-wrap:focus-within .alt-view-preview { opacity: 1; visibility: visible; transform: none; }
+  .alt-view-preview img { width: 100%; height: auto; aspect-ratio: 900 / 495; display: block; border-radius: 3px; border: 1px solid var(--line); }
+  .alt-view-preview .cap {
+    display: block; font-family: var(--mono); font-size: 0.625rem; line-height: 1.5;
+    color: var(--ink-faint); padding: 8px 4px 3px;
+  }
+  @media (prefers-reduced-motion: reduce) { .alt-view-preview { transition: none; } }
 
   main { flex: 1; display: flex; flex-direction: column; width: 100%; }
 
@@ -75,17 +161,17 @@
     max-width: 860px; width: 100%; margin: 0 auto;
   }
   .eyebrow {
-    font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+    font-family: var(--mono); font-size: 0.7188rem; font-weight: 500;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--red);
     margin-bottom: 26px;
   }
   h1 {
-    font-size: clamp(38px, 6.4vw, 64px);
+    font-size: clamp(2.375rem, 6.4vw, 4rem);
     font-weight: 700; letter-spacing: -0.035em; line-height: 1.04;
     max-width: 15ch; margin: 0 auto 22px;
   }
   .lede {
-    font-size: 17px; line-height: 1.65; color: var(--ink-soft);
+    font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft);
     max-width: 56ch; margin: 0 auto 42px;
   }
   .lede strong { color: var(--ink); font-weight: 600; }
@@ -102,7 +188,7 @@
   .ask:focus-within { box-shadow: 0 1px 0 var(--ink), 4px 4px 0 rgba(227,6,19,0.22); }
   .ask input {
     flex: 1; border: none; background: transparent; outline: none;
-    font: 16px/1.4 var(--sans); color: var(--ink);
+    font: 1rem/1.4 var(--sans); color: var(--ink);
     padding: 18px 8px 18px 20px; min-width: 0;
   }
   .ask input::placeholder { color: var(--ink-faint); }
@@ -118,7 +204,7 @@
 
   .chips { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-top: 26px; max-width: 640px; }
   .chip {
-    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
     background: transparent; color: var(--ink-soft);
     border: 1px solid var(--line); border-radius: 999px;
     padding: 9px 15px;
@@ -127,7 +213,7 @@
   .chip:hover { border-color: var(--ink); color: var(--ink); background: var(--sheet); }
 
   .stage-foot {
-    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-faint);
     letter-spacing: 0.06em; margin-top: 56px;
   }
   .stage-foot b { color: var(--ink-soft); font-weight: 500; }
@@ -158,26 +244,34 @@
     padding: 18px 28px 16px 84px;
     border-bottom: 1px solid var(--line-soft);
   }
-  .sheet-head .t { font-family: var(--mono); font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
-  .sheet-head .d { font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); margin-left: auto; }
+  .sheet-head .t { font-family: var(--mono); font-size: 0.7188rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+  .sheet-head .d { font-family: var(--mono); font-size: 0.7188rem; color: var(--ink-faint); margin-left: auto; }
 
   .log { flex: 1; overflow-y: auto; padding: 26px 28px 18px 0; scroll-padding-bottom: 24px; }
   .entry { display: flex; gap: 0; margin-bottom: 26px; }
   .entry .ts {
     flex: 0 0 64px; text-align: center;
-    font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint);
+    font-family: var(--mono); font-size: 0.6562rem; color: var(--ink-faint);
     padding-top: 4px;
   }
   .entry .msg { flex: 1; min-width: 0; padding-left: 20px; }
   .entry .who {
-    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    font-family: var(--mono); font-size: 0.6562rem; font-weight: 600;
     letter-spacing: 0.14em; text-transform: uppercase;
     margin-bottom: 7px; color: var(--ink-faint);
   }
   .entry.bot .who { color: var(--red); }
-  .entry .body { font-size: 15.5px; line-height: 1.62; max-width: 62ch; white-space: pre-wrap; }
+  .entry .body { font-size: 0.9688rem; line-height: 1.62; max-width: 62ch; white-space: pre-wrap; }
   .entry.user .body { color: var(--ink-soft); }
-  .entry .src { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 8px; }
+  .entry .src { font-family: var(--mono); font-size: 0.625rem; color: var(--ink-faint); margin-top: 8px; }
+  .beta-notice {
+    margin: 0 0 26px 84px; padding: 14px 16px;
+    background: rgba(227,6,19,0.05); border-left: 3px solid var(--red);
+    border-radius: 0 3px 3px 0;
+    font-size: 0.8125rem; line-height: 1.6; color: var(--ink-soft); max-width: 62ch;
+  }
+  .beta-notice b { color: var(--ink); font-weight: 600; }
+  .beta-notice a { color: var(--red); font-weight: 500; }
 
   .typing { display: inline-flex; gap: 5px; padding: 6px 0; }
   .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); animation: blink 1.2s infinite; }
@@ -197,26 +291,26 @@
     padding: 13px 18px;
     background: var(--ink); color: #fff;
   }
-  .card-head .ct { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; }
-  .card-head .cb { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,.55); }
+  .card-head .ct { font-family: var(--mono); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; }
+  .card-head .cb { font-family: var(--mono); font-size: 0.625rem; color: rgba(255,255,255,.55); }
   .card-body { padding: 18px; }
 
   .slider-row { margin-bottom: 16px; }
-  .slider-row label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+  .slider-row label { display: flex; justify-content: space-between; font-size: 0.8125rem; font-weight: 500; margin-bottom: 8px; }
   .slider-row label output { font-family: var(--mono); font-weight: 600; color: var(--red); }
   input[type="range"] { width: 100%; accent-color: var(--red); }
   .calc-result {
     display: flex; align-items: baseline; gap: 10px;
     border-top: 1px dashed var(--line); margin-top: 4px; padding-top: 14px;
   }
-  .calc-result .num { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; }
-  .calc-result .lbl { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); line-height: 1.5; }
-  .calc-note { font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); margin-top: 10px; line-height: 1.6; }
+  .calc-result .num { font-size: 2.125rem; font-weight: 700; letter-spacing: -0.03em; }
+  .calc-result .lbl { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-soft); line-height: 1.5; }
+  .calc-note { font-family: var(--mono); font-size: 0.6562rem; color: var(--ink-faint); margin-top: 10px; line-height: 1.6; }
 
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
     border: none; border-radius: 3px;
-    font-size: 14px; font-weight: 600;
+    font-size: 0.875rem; font-weight: 600;
     padding: 12px 18px;
     transition: background .15s ease;
   }
@@ -226,24 +320,24 @@
   .btn-ghost:hover { border-color: var(--ink); }
   .card-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
 
-  .case-fact { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; font-size: 14px; }
-  .case-fact b { font-family: var(--mono); font-size: 13px; color: var(--red); white-space: nowrap; }
+  .case-fact { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; font-size: 0.875rem; }
+  .case-fact b { font-family: var(--mono); font-size: 0.8125rem; color: var(--red); white-space: nowrap; }
 
   .person { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
   .person .pic {
     width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
     background: var(--ink); color: #fff;
     display: grid; place-items: center;
-    font-family: var(--mono); font-weight: 600; font-size: 16px;
+    font-family: var(--mono); font-weight: 600; font-size: 1rem;
     flex: 0 0 auto;
   }
   .person .pic img { width: 100%; height: 100%; object-fit: cover; }
-  .person .pn { font-weight: 600; font-size: 15px; }
-  .person .pr { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .person .pn { font-weight: 600; font-size: 0.9375rem; }
+  .person .pr { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-soft); margin-top: 2px; }
 
   .form-grid { display: grid; gap: 10px; }
   .form-grid input, .form-grid textarea {
-    font: 14px/1.4 var(--sans); color: var(--ink);
+    font: 0.875rem/1.4 var(--sans); color: var(--ink);
     border: 1px solid var(--line); border-radius: 3px;
     padding: 11px 13px; width: 100%; background: #fff;
   }
@@ -251,7 +345,7 @@
   .form-grid textarea { resize: vertical; min-height: 64px; }
   .form-ok {
     display: flex; gap: 10px; align-items: flex-start;
-    font-size: 14px; line-height: 1.55;
+    font-size: 0.875rem; line-height: 1.55;
     background: var(--line-soft); border-radius: 4px; padding: 14px 16px;
   }
   .form-ok .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); margin-top: 5px; flex: 0 0 auto; }
@@ -260,7 +354,7 @@
 
   .dock { border: 1px solid var(--line); border-top: none; background: var(--sheet); border-radius: 0 0 6px 6px; padding: 14px 20px 16px; box-shadow: 0 2px 24px rgba(17,17,18,0.06); }
   .dock .ask { max-width: none; box-shadow: none; border-width: 1.5px; }
-  .dock-hint { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 9px; text-align: center; letter-spacing: 0.05em; }
+  .dock-hint { font-family: var(--mono); font-size: 0.625rem; color: var(--ink-faint); margin-top: 9px; text-align: center; letter-spacing: 0.05em; }
 
   footer {
     border-top: 1px solid var(--line);
@@ -273,16 +367,16 @@
     padding: 36px 28px 30px;
   }
   .foot-col .fh {
-    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    font-family: var(--mono); font-size: 0.6562rem; font-weight: 600;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--red);
     margin-bottom: 14px;
   }
-  .foot-col p, .foot-col a { font-size: 13px; line-height: 1.7; color: var(--ink-soft); text-decoration: none; }
+  .foot-col p, .foot-col a { font-size: 0.8125rem; line-height: 1.7; color: var(--ink-soft); text-decoration: none; }
   .foot-col a { display: block; }
   .foot-col a:hover { color: var(--ink); }
   .foot-col .fw { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .foot-col .fw svg { width: 18px; height: 18px; }
-  .foot-col .fw b { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .foot-col .fw b { font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
   .foot-base {
     border-top: 1px solid var(--line-soft);
   }
@@ -290,7 +384,7 @@
     max-width: 1080px; margin: 0 auto;
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
     padding: 16px 28px;
-    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-faint);
   }
   .foot-base-in nav { display: flex; gap: 18px; }
   .foot-base-in a { text-decoration: none; color: var(--ink-faint); }
@@ -298,15 +392,16 @@
 
   @media (max-width: 640px) {
     .topbar-in { padding: 14px 18px; }
-    .alt-view { display: none; }
+    .alt-view-wrap { display: none; }
     .stage { padding: 12px 18px 32px; }
-    .lede { font-size: 15.5px; }
+    .lede { font-size: 0.9688rem; }
     .protocol { padding: 0 10px 12px; }
     .sheet::before { left: 18px; }
     .sheet-head { padding: 14px 16px 12px 30px; }
     .log { padding: 20px 16px 12px 0; }
     .entry .ts { flex-basis: 18px; font-size: 0; }
     .entry .msg { padding-left: 14px; }
+    .beta-notice { margin-left: 32px; }
     .dock { padding: 10px 12px 12px; }
     .foot-grid { grid-template-columns: 1fr 1fr; gap: 24px; padding: 28px 18px 22px; }
     .foot-base-in { flex-direction: column; gap: 8px; padding: 14px 18px; text-align: center; }
@@ -318,6 +413,18 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+<div class="a11y-fab">
+  <button type="button" id="a11yBtn" aria-expanded="false" aria-controls="a11yPanel" aria-label="Barrierefreiheits-Einstellungen öffnen">&#9855;</button>
+  <div class="a11y-panel" id="a11yPanel" role="group" aria-label="Barrierefreiheits-Einstellungen">
+    <h2>Barrierefreiheit</h2>
+    <button type="button" data-a11y="bigtext" aria-pressed="false">Große Schrift <span class="state">Aus</span></button>
+    <button type="button" data-a11y="contrast" aria-pressed="false">Hoher Kontrast <span class="state">Aus</span></button>
+    <button type="button" data-a11y="gray" aria-pressed="false">Graustufen <span class="state">Aus</span></button>
+    <button type="button" data-a11y="noanim" aria-pressed="false">Animationen stoppen <span class="state">Aus</span></button>
+  </div>
+</div>
 
 <header class="topbar" id="topbar">
   <div class="topbar-in">
@@ -329,13 +436,19 @@
       </span>
     </a>
     <div class="topbar-right">
-      <a class="alt-view" href="index2.html">Klassische Ansicht →</a>
+      <span class="alt-view-wrap">
+        <a class="alt-view" href="index2.html">Alles im Überblick →</a>
+        <span class="alt-view-preview" aria-hidden="true">
+          <img src="vorschau.webp" alt="" width="900" height="495" loading="lazy">
+          <span class="cap">Die komplette Website — Leistungen, Branchen, Druckkosten-Rechner und Kontakt</span>
+        </span>
+      </span>
       <a class="phone" href="tel:+4960039414-0">06003 9414-0</a>
     </div>
   </div>
 </header>
 
-<main>
+<main id="main">
   <section class="stage" id="stage">
     <p class="eyebrow">Bürotechnik · Dokumentenmanagement · Seit 1986</p>
     <h1>Sagen Sie uns, was Ihr Büro aufhält.</h1>
@@ -384,8 +497,8 @@
     </div>
     <div class="foot-col">
       <div class="fh">Service</div>
-      <a href="https://docunova.de/zaehlerstand-erfassen/">Zählerstand erfassen</a>
-      <a href="https://docunova.de/stoerungserfassung/">Störung melden</a>
+      <a href="zaehlerstand.html">Zählerstand erfassen</a>
+      <a href="stoerung.html">Störung melden</a>
       <a href="https://www.teamviewer.com/de/download/windows/">TeamViewer Fernwartung</a>
     </div>
     <div class="foot-col">
@@ -395,17 +508,17 @@
     </div>
     <div class="foot-col">
       <div class="fh">Unternehmen</div>
-      <a href="https://docunova.de/karriere/">Karriere</a>
-      <a href="index2.html">Klassische Ansicht</a>
-      <a href="tel:+4960039414-0">Direkt anrufen</a>
+      <a href="karriere.html">Karriere</a>
+      <a href="index2.html">Alles im Überblick</a>
+      <a href="kontakt.html">Kontakt &amp; Standorte</a>
     </div>
   </div>
   <div class="foot-base">
     <div class="foot-base-in">
       <span>© 2026 docunova GmbH · Wir für Ihr Büro — seit 1986</span>
       <nav>
-        <a href="#">Impressum</a>
-        <a href="#">Datenschutz</a>
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
       </nav>
     </div>
   </div>
@@ -413,7 +526,13 @@
 
 <script>
 (() => {
-  const WEBHOOK = 'https://n8n.top-beraternetzwerk.de/webhook/multiagent';
+  /* Zum Freischalten des neuen Chatbots: webhookEnabled auf true setzen,
+     webhook auf die neue URL und freeQuestions auf 10 anheben. */
+  const CONFIG = {
+    webhookEnabled: false,
+    webhook: 'https://n8n.top-beraternetzwerk.de/webhook/multiagent',
+    freeQuestions: 2,
+  };
   const SESSION = 'dn-' + Math.random().toString(36).slice(2, 10);
 
   const $ = (s) => document.querySelector(s);
@@ -559,7 +678,7 @@
     c.querySelector('form').addEventListener('submit', (e) => {
       e.preventDefault();
       c.querySelector('.card-body').innerHTML = `
-        <div class="form-ok"><span class="dot"></span><span><b>Angekommen.</b> Ein fester Ansprechpartner — kein Callcenter — meldet sich am selben Werktag bei Ihnen.<br><span style="font-family:var(--mono);font-size:11px;color:var(--ink-faint)">Prototyp: Es wurde nichts versendet.</span></span></div>`;
+        <div class="form-ok"><span class="dot"></span><span><b>Angekommen.</b> Ein fester Ansprechpartner — kein Callcenter — meldet sich am selben Werktag bei Ihnen.<br><span style="font-family:var(--mono);font-size:0.6875rem;color:var(--ink-faint)">Prototyp: Es wurde nichts versendet.</span></span></div>`;
       scroll();
     });
     return c;
@@ -572,7 +691,7 @@
       <div class="card-head"><span class="ct">Rückruf</span><span class="cb">heute noch</span></div>
       <div class="card-body">
         <div class="person">
-          <span class="pic"><img src="ansprechpartner.png" alt="" onerror="this.remove()"><span>RM</span></span>
+          <span class="pic"><img src="ansprechpartner.webp" alt="" onerror="this.remove()"><span>RM</span></span>
           <div><div class="pn">Ihr persönlicher Ansprechpartner</div><div class="pr">Beratung &amp; Technik · Rosbach v. d. Höhe</div></div>
         </div>
         <form class="form-grid">
@@ -585,7 +704,7 @@
     c.querySelector('form').addEventListener('submit', (e) => {
       e.preventDefault();
       c.querySelector('.card-body').innerHTML = `
-        <div class="form-ok"><span class="dot"></span><span><b>Notiert.</b> Wir rufen Sie heute zurück — versprochen ist versprochen.<br><span style="font-family:var(--mono);font-size:11px;color:var(--ink-faint)">Prototyp: Es wurde nichts versendet.</span></span></div>`;
+        <div class="form-ok"><span class="dot"></span><span><b>Notiert.</b> Wir rufen Sie heute zurück — versprochen ist versprochen.<br><span style="font-family:var(--mono);font-size:0.6875rem;color:var(--ink-faint)">Prototyp: Es wurde nichts versendet.</span></span></div>`;
       scroll();
     });
     return c;
@@ -655,12 +774,79 @@
     },
   ];
 
+  let noticeShown = false;
+  function showNotice() {
+    if (noticeShown) return;
+    noticeShown = true;
+    const n = document.createElement('div');
+    n.className = 'beta-notice';
+    n.setAttribute('role', 'status');
+    n.innerHTML = CONFIG.webhookEnabled
+      ? '<b>Diese Frage geht über unsere vorbereiteten Antworten hinaus.</b> '
+        + 'Sie wird gerade von einem Testsystem beantwortet — der KI-Assistent von docunova wird in Kürze freigeschaltet. '
+        + 'Verlassen Sie sich bis dahin bitte nicht auf diese Auskunft: '
+        + '<a href="tel:+4960039414-0">06003 9414-0</a> oder <a href="mailto:info@docunova.de">info@docunova.de</a>.'
+      : '<b>Diese Frage geht über unsere vorbereiteten Antworten hinaus.</b> '
+        + 'Der KI-Assistent von docunova wird gerade fertiggestellt und in Kürze freigeschaltet. '
+        + 'Bis dahin beantworten wir solche Fragen persönlich: '
+        + '<a href="tel:+4960039414-0">06003 9414-0</a> oder <a href="mailto:info@docunova.de">info@docunova.de</a>.';
+    log.appendChild(n);
+    n.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  function kontaktCard() {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `
+      <div class="card-head"><span class="ct">Ihre Frage an uns</span><span class="cb">persönlich</span></div>
+      <div class="card-body">
+        <form class="form-grid">
+          <input type="text" name="name" placeholder="Ihr Name" required aria-label="Ihr Name">
+          <input type="text" name="firma" placeholder="Firma" required aria-label="Firma">
+          <input type="email" name="email" placeholder="E-Mail" required aria-label="E-Mail">
+          <input type="tel" name="telefon" placeholder="Telefon (optional)" aria-label="Telefon">
+          <textarea name="nachricht" placeholder="Worum geht es?" required aria-label="Ihre Nachricht"></textarea>
+          <button type="submit" class="btn btn-red">Anfrage senden</button>
+        </form>
+        <div class="card-actions"><a class="btn btn-ghost" href="tel:+4960039414-0">Oder direkt anrufen: 06003 9414-0</a></div>
+      </div>`;
+    const form = c.querySelector('form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Wird gesendet …';
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.formular = 'chat-kontakt';
+      data.zeitpunkt = new Date().toISOString();
+      let ok = false;
+      try {
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 15000);
+        const res = await fetch('https://n8n.top-beraternetzwerk.de/webhook/docunova-kontakt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          signal: ctrl.signal,
+        });
+        clearTimeout(to);
+        ok = res.ok;
+      } catch { ok = false; }
+      c.querySelector('.card-body').innerHTML = ok
+        ? `<div class="form-ok"><span class="dot"></span><span><b>Angekommen.</b> Ein fester Ansprechpartner meldet sich am selben Werktag bei Ihnen.</span></div>`
+        : `<div class="form-ok"><span class="dot"></span><span><b>Das hat gerade nicht geklappt.</b> Bitte rufen Sie uns an: <a href="tel:+4960039414-0">06003 9414-0</a> — oder schreiben Sie an <a href="mailto:info@docunova.de">info@docunova.de</a>.</span></div>`;
+      scroll();
+    });
+    return c;
+  }
+
   async function askBackend(text) {
     const typing = addTyping();
     try {
       const ctrl = new AbortController();
       const to = setTimeout(() => ctrl.abort(), 45000);
-      const res = await fetch(WEBHOOK, {
+      const res = await fetch(CONFIG.webhook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, sessionId: SESSION }),
@@ -672,7 +858,7 @@
       typing.remove();
       if (out) {
         addBot(out, {
-          src: 'KI-Assistent · Beispiel-Backend (n8n) — verbindliche Auskünfte gibt Ihr Ansprechpartner',
+          src: 'Testsystem — der KI-Assistent wird in Kürze freigeschaltet · verbindliche Auskünfte gibt Ihr Ansprechpartner',
           followups: ['Rückruf vereinbaren', 'Was kostet unser Druck wirklich?'],
         });
       } else { throw new Error('empty'); }
@@ -681,6 +867,50 @@
       addBot('Da komme ich gerade nicht weiter — aber ein Mensch schon. Rufen Sie uns an (06003 9414-0) oder lassen Sie sich zurückrufen:', { cards: [callbackCard] });
     }
     pending = false;
+  }
+
+  let freeAsked = 0;
+  let formShown = false;
+
+  function handleFreeQuestion(text) {
+    freeAsked++;
+
+    if (freeAsked > CONFIG.freeQuestions) {
+      const typing = addTyping();
+      setTimeout(() => {
+        typing.remove();
+        if (!formShown) {
+          formShown = true;
+          addBot('Ab hier kommen wir persönlich weiter. Schreiben Sie uns in zwei Sätzen, worum es geht — wir melden uns am selben Werktag.', { cards: [kontaktCard] });
+        } else {
+          addBot('Am schnellsten geht es jetzt direkt: 06003 9414-0 oder info@docunova.de. Oder Sie nutzen das Formular oben.');
+        }
+        pending = false;
+      }, 550);
+      return;
+    }
+
+    showNotice();
+
+    if (CONFIG.webhookEnabled) { askBackend(text); return; }
+
+    const typing = addTyping();
+    setTimeout(() => {
+      typing.remove();
+      const letzte = freeAsked >= CONFIG.freeQuestions;
+      addBot(
+        letzte
+          ? 'Auch dazu kann ich Ihnen erst etwas Verbindliches sagen, wenn der KI-Assistent live ist. Fragen Sie mich gern noch zu einem der Themen unten — oder lassen Sie uns direkt sprechen.'
+          : 'Dazu kann ich Ihnen hier noch nichts Verbindliches sagen. Zu diesen Themen habe ich dagegen schon Antworten parat:',
+        {
+          followups: letzte
+            ? ['Rückruf vereinbaren', 'Was kostet unser Druck wirklich?']
+            : ['Was kostet unser Druck wirklich?', 'Papierakten digitalisieren', 'Störung — wir brauchen einen Techniker'],
+          cards: letzte ? [callbackCard] : undefined,
+        }
+      );
+      pending = false;
+    }, 600);
   }
 
   function route(text) {
@@ -695,7 +925,7 @@
         return;
       }
     }
-    askBackend(text);
+    handleFreeQuestion(text);
   }
 
   function submit(text) {
@@ -710,6 +940,54 @@
     route(t);
     $('#inputDock').focus();
   }
+
+  /* Barrierefreiheits-Toolbar — teilt sich den Speicher mit den übrigen Seiten */
+  (() => {
+    const KEY = 'dn-a11y';
+    const html = document.documentElement;
+    const fabBtn = $('#a11yBtn');
+    const panel = $('#a11yPanel');
+    if (!fabBtn || !panel) return;
+    let state;
+    try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { state = {}; }
+
+    const buttons = Array.from(panel.querySelectorAll('button[data-a11y]'));
+    const apply = () => {
+      html.classList.toggle('a11y-bigtext', !!state.bigtext);
+      html.classList.toggle('a11y-contrast', !!state.contrast);
+      html.classList.toggle('a11y-gray', !!state.gray);
+      html.classList.toggle('a11y-noanim', !!state.noanim);
+      buttons.forEach((b) => {
+        const on = !!state[b.dataset.a11y];
+        b.setAttribute('aria-pressed', String(on));
+        b.querySelector('.state').textContent = on ? 'An' : 'Aus';
+      });
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+    };
+
+    fabBtn.addEventListener('click', () => {
+      const open = panel.classList.toggle('open');
+      fabBtn.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', (e) => {
+      if (panel.classList.contains('open') && !e.target.closest('.a11y-fab')) {
+        panel.classList.remove('open');
+        fabBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && panel.classList.contains('open')) {
+        panel.classList.remove('open');
+        fabBtn.setAttribute('aria-expanded', 'false');
+        fabBtn.focus();
+      }
+    });
+    buttons.forEach((b) => b.addEventListener('click', () => {
+      state[b.dataset.a11y] = !state[b.dataset.a11y];
+      apply();
+    }));
+    apply();
+  })();
 
   for (const [formId, inputId] of [['#askHero', '#inputHero'], ['#askDock', '#inputDock']]) {
     $(formId).addEventListener('submit', (e) => {
