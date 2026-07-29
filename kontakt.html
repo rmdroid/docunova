@@ -45,10 +45,16 @@
 
   .standorte-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
   .standorte-photo{position:relative}
-  .standorte-photo img{width:100%;border-radius:3px;display:block}
+  .standorte-frame{position:relative;aspect-ratio:3/2;overflow:hidden;border-radius:3px;background:#e2e0dc}
+  .standorte-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .45s cubic-bezier(.16,1,.3,1)}
+  .standorte-frame img.on{opacity:1}
   .standorte-photo .tri{position:absolute;right:-24px;bottom:-24px;width:110px;height:110px;background:var(--red);clip-path:polygon(100% 0,0 100%,100% 100%)}
   .ort-cards{display:flex;flex-direction:column;gap:18px}
-  .ort-card{background:#fff;border:1px solid var(--line);border-radius:3px;padding:24px 26px}
+  .ort-card{background:#fff;border:1px solid var(--line);border-radius:3px;padding:24px 26px;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+  .ort-card:hover{border-color:#c9c7c2}
+  .ort-card[data-active="true"]{border-color:var(--red);box-shadow:inset 3px 0 0 var(--red)}
+  .ort-toggle{background:none;border:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer;display:block;width:100%}
+  .ort-toggle:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:2px}
   .ort-card h3{font-family:'Schibsted Grotesk',sans-serif;font-weight:700;font-size:1.13rem;margin:0 0 8px}
   .ort-card p{font-size:.94rem;line-height:1.65;color:var(--muted);margin:0}
   .ort-card a{color:var(--red);text-decoration:none;font-weight:600}
@@ -206,19 +212,22 @@
     </div>
     <div class="standorte-grid">
       <div class="standorte-photo">
-        <img src="docu3.webp" alt="Firmengebäude der docunova GmbH in Rosbach vor der Höhe" loading="lazy">
+        <div class="standorte-frame" id="ortFrame">
+          <img src="docu3.webp" alt="Firmengebäude der docunova GmbH in Rosbach vor der Höhe" data-ort="0" class="on" loading="lazy">
+          <img src="wolff.webp" alt="Ladengeschäft von Wolff Bürotechnik in Nidda" data-ort="1" loading="lazy">
+        </div>
         <div class="tri" aria-hidden="true"></div>
       </div>
       <div>
-        <div class="ort-cards">
-          <div class="ort-card">
-            <h3>docunova GmbH · Rosbach v. d. Höhe</h3>
+        <div class="ort-cards" id="ortCards">
+          <div class="ort-card" data-ort="0" data-active="true">
+            <h3><button type="button" class="ort-toggle" aria-pressed="true">docunova GmbH · Rosbach v. d. Höhe</button></h3>
             <p>Raiffeisenstraße 6<br>61191 Rosbach vor der Höhe<br>
             Tel. <a href="tel:+4960039414-0">06003 9414-0</a> · Fax 06003 9414-24<br>
             <a href="mailto:info@docunova.de">info@docunova.de</a></p>
           </div>
-          <div class="ort-card">
-            <h3>Wolff Bürotechnik · Nidda</h3>
+          <div class="ort-card" data-ort="1" data-active="false">
+            <h3><button type="button" class="ort-toggle" aria-pressed="false">Wolff Bürotechnik · Nidda</button></h3>
             <p>Unser Partner-Standort in der Wetterau — gleiche Leistungen, gleiche Ansprechpartner-Mentalität.</p>
           </div>
         </div>
