@@ -160,6 +160,32 @@
     els.forEach(el => io.observe(el));
   })();
 
+  /* Standorte: Klick auf eine Karte wechselt das Foto */
+  (() => {
+    const cards = $('#ortCards');
+    const frame = $('#ortFrame');
+    if (!cards || !frame) return;
+    const items = $$('.ort-card', cards);
+    const photos = $$('img[data-ort]', frame);
+
+    const show = (idx) => {
+      items.forEach((card) => {
+        const on = card.dataset.ort === idx;
+        card.dataset.active = String(on);
+        const btn = $('.ort-toggle', card);
+        if (btn) btn.setAttribute('aria-pressed', String(on));
+      });
+      photos.forEach((img) => img.classList.toggle('on', img.dataset.ort === idx));
+    };
+
+    cards.addEventListener('click', (e) => {
+      // Telefon- und E-Mail-Links sollen weiterhin normal funktionieren
+      if (e.target.closest('a')) return;
+      const card = e.target.closest('.ort-card');
+      if (card) show(card.dataset.ort);
+    });
+  })();
+
   /* Formular-Versand an n8n — ausgelöst über [data-webhook] am <form> */
   (() => {
     $$('form[data-webhook]').forEach(form => {
